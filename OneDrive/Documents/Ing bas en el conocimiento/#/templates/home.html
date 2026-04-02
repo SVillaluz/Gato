@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Configuración básica del documento -->
+    <meta charset="UTF-8">
+    <title>Juego de Gato</title>
+    <!-- Carga el archivo CSS externo para los estilos del juego -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Encabezado del juego -->
+    <header>
+        <h1>Juego de Gato</h1>
+    </header>
+    
+    <!-- Contenido principal del juego -->
+    <main>
+        <!-- Tablero del juego: genera una cuadrícula 3x3 -->
+        <div id="tablero">
+            {% for i in range(3) %}
+                <!-- Cada fila del tablero -->
+                <div class="row">
+                    {% for j in range(3) %}
+                        <!-- Cada celda individual con coordenadas data-row y data-col -->
+                        <!-- data-row y data-col se usan en JavaScript para identificar posiciones -->
+                        <div class="cell" data-row="{{ i }}" data-col="{{ j }}">{{ board[i][j] }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Muestra el estado actual del juego (turno, ganador, empate) -->
+        <div id="status">{{ status }}</div>
+        
+        <!-- Botón para reiniciar el juego (revancha) -->
+        <button id="reset-btn">Revancha</button>
+    </main>
+    
+    <!-- Script de JavaScript para la lógica interactiva del juego -->
+    <script>
+        // Se ejecuta cuando el DOM está completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            const cells = document.querySelectorAll('.cell');
+            const initialStatus = document.getElementById('status').textContent;
+            toggleCells(initialStatus);
+
+            // Agrega event listener a cada celda del tablero
+            cells.forEach(cell => {
+                cell.addEventListener('click', function() {
+                    const row = this.getAttribute('data-row');
+                    const col = this.getAttribute('data-col');
+                    const status = document.getElementById('status').textContent;
+                    
+                    // Valida: la celda debe estar vacía y el juego no debe haber terminado
+                    if (this.textContent.trim() === '' && !isGameOver(status)) {
+                        // Envía el movimiento al servidor Flask
+                        fetch(`/move/${row}/${col}/X`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Actualiza el tablero con la respuesta del servidor
+                                updateBoard(data.board);
+                                updateStatus(data.status);
+                                toggleCells(data.status);
+                            })
+                            .catch(error => console.error('Error:', error));
+                    }
+                });
+            });
+
+            // Agrega evento al botón de revancha
+            document.getElementById('reset-btn').addEventListener('click', function() {
+                // Envía solicitud de reinicio al servidor
+                fetch('/reset')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateBoard(data.board);
+                        updateStatus(data.status);
+                        toggleCells(data.status);
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        /**
+         * Verifica si el juego ha terminado
+         * @param {string} status - El estado actual del juego
+         * @returns {boolean} - true si alguien ganó o hay empate, false en caso contrario
+         */
+        function isGameOver(status) {
+            return status.includes('gana') || status === 'Empate';
+        }
+
+        /**
+         * Habilita o deshabilita los clics en las celdas según el estado del juego
+         * @param {string} status - El estado actual del juego
+         */
+        function toggleCells(status) {
+            const cells = document.querySelectorAll('.cell');
+            if (isGameOver(status)) {
+                // Deshabilita clics si el juego terminó
+                cells.forEach(cell => cell.style.pointerEvents = 'none');
+            } else {
+                // Habilita clics si el juego está en progreso
+                cells.forEach(cell => cell.style.pointerEvents = 'auto');
+            }
+        }
+
+        /**
+         * Actualiza el tablero visual con los valores del servidor
+         * @param {array} board - La matriz 3x3 con el estado actual del tablero
+         */
+        function updateBoard(board) {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = cell.getAttribute('data-row');
+                const col = cell.getAttribute('data-col');
+                cell.textContent = board[row][col];
+            });
+        }
+
+        /**
+         * Actualiza el texto del estado del juego
+         * @param {string} status - El nuevo estado a mostrar
+         */
+        function updateStatus(status) {
+            document.getElementById('status').textContent = status;
+        }
+
+        function updateStatus(status) {
+            document.getElementById('status').textContent = status;
+        }
+    </script>
+</body>
+</html>

@@ -8,35 +8,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <!-- Encabezado del juego -->
-    <header>
-        <h1>Juego de Gato</h1>
-    </header>
+    <h1>¡Bienvenido al Juego de Gato!</h1>
+    <!-- Contenedor para el tablero del juego -->
+    <div id="tablero">
+        {% for i in range(3) %}
+            <div class="row">
+                {% for j in range(3) %}
+                    <div class="cell" data-row="{{ i }}" data-col="{{ j }}">{{ tablero[i][j] }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="status">{{ status }}</div>
     
-    <!-- Contenido principal del juego -->
-    <main>
-        <!-- Tablero del juego: genera una cuadrícula 3x3 -->
-        <div id="tablero">
-            {% for i in range(3) %}
-                <!-- Cada fila del tablero -->
-                <div class="row">
-                    {% for j in range(3) %}
-                        <!-- Cada celda individual con coordenadas data-row y data-col -->
-                        <!-- data-row y data-col se usan en JavaScript para identificar posiciones -->
-                        <div class="cell" data-row="{{ i }}" data-col="{{ j }}">{{ board[i][j] }}</div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
-        
-        <!-- Muestra el estado actual del juego (turno, ganador, empate) -->
-        <div id="status">{{ status }}</div>
-        
-        <!-- Botón para reiniciar el juego (revancha) -->
-        <button id="reset-btn">Revancha</button>
-    </main>
-    
-    <!-- Script de JavaScript para la lógica interactiva del juego -->
+    <!-- Botón para reiniciar el juego -->
+    <button id="reset-btn">Reiniciar Juego</button>
+
+    <!-- Carga el archivo JavaScript externo para la lógica del juego -->
     <script>
         // Se ejecuta cuando el DOM está completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
@@ -125,10 +114,7 @@
         function updateStatus(status) {
             document.getElementById('status').textContent = status;
         }
-
-        function updateStatus(status) {
-            document.getElementById('status').textContent = status;
-        }
     </script>
+
 </body>
 </html>

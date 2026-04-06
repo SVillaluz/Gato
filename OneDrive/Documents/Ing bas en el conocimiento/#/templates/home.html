@@ -11,9 +11,9 @@
     <h1 id="t">¡Bienvenido al Juego de Gato!</h1>
     <!-- Contenedor para el tablero del juego -->
     <div id="tablero">
-        {% for i in range(3) %}
+        {% for i in range(3) %}  <!-- Bucle para crear filas -->
             <div class="row">
-                {% for j in range(3) %}
+                {% for j in range(3) %}  <!-- Bucle para crear celdas en cada fila -->
                     <div class="cell" data-row="{{ i }}" data-col="{{ j }}">{{ tablero[i][j] }}</div>
                 {% endfor %}
             </div>
@@ -36,22 +36,22 @@
             // Agrega event listener a cada celda del tablero
             cells.forEach(cell => {
                 cell.addEventListener('click', function() {
-                    const row = this.getAttribute('data-row');
-                    const col = this.getAttribute('data-col');
-                    const status = document.getElementById('status').textContent;
+                    const row = this.getAttribute('data-row');  // Obtener fila de la celda
+                    const col = this.getAttribute('data-col');  // Obtener columna de la celda
+                    const status = document.getElementById('status').textContent;  // Obtener estado actual
                     
                     // Valida: la celda debe estar vacía y el juego no debe haber terminado
                     if (this.textContent.trim() === '' && !isGameOver(status)) {
                         // Envía el movimiento al servidor Flask
                         fetch(`/move/${row}/${col}/X`)
-                            .then(response => response.json())
+                            .then(response => response.json())  // Convertir respuesta a JSON
                             .then(data => {
                                 // Actualiza el tablero con la respuesta del servidor
                                 updateBoard(data.board);
                                 updateStatus(data.status);
                                 toggleCells(data.status);
                             })
-                            .catch(error => console.error('Error:', error));
+                            .catch(error => console.error('Error:', error));  // Manejar errores
                     }
                 });
             });
@@ -60,13 +60,13 @@
             document.getElementById('reset-btn').addEventListener('click', function() {
                 // Envía solicitud de reinicio al servidor
                 fetch('/reset')
-                    .then(response => response.json())
+                    .then(response => response.json())  // Convertir respuesta a JSON
                     .then(data => {
                         updateBoard(data.board);
                         updateStatus(data.status);
                         toggleCells(data.status);
                     })
-                    .catch(error => console.error('Error:', error));
+                    .catch(error => console.error('Error:', error));  // Manejar errores
             });
         });
 
@@ -84,13 +84,13 @@
          * @param {string} status - El estado actual del juego
          */
         function toggleCells(status) {
-            const cells = document.querySelectorAll('.cell');
+            const cells = document.querySelectorAll('.cell');  // Seleccionar todas las celdas
             if (isGameOver(status)) {
                 // Deshabilita clics si el juego terminó
-                cells.forEach(cell => cell.style.pointerEvents = 'none');
+                cells.forEach(cell => cell.style.pointerEvents = 'none');  // Deshabilitar clics
             } else {
                 // Habilita clics si el juego está en progreso
-                cells.forEach(cell => cell.style.pointerEvents = 'auto');
+                cells.forEach(cell => cell.style.pointerEvents = 'auto');  // Habilitar clics
             }
         }
 
@@ -99,11 +99,11 @@
          * @param {array} board - La matriz 3x3 con el estado actual del tablero
          */
         function updateBoard(board) {
-            const cells = document.querySelectorAll('.cell');
+            const cells = document.querySelectorAll('.cell');  // Seleccionar todas las celdas
             cells.forEach(cell => {
-                const row = cell.getAttribute('data-row');
-                const col = cell.getAttribute('data-col');
-                cell.textContent = board[row][col];
+                const row = cell.getAttribute('data-row');  // Obtener fila
+                const col = cell.getAttribute('data-col');  // Obtener columna
+                cell.textContent = board[row][col];  // Actualizar contenido de la celda
             });
         }
 
